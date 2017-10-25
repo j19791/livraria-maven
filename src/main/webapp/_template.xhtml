@@ -1,0 +1,57 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+      <h:head /><!-- como AJAX é baseado no JavaScript, o JSF precisa associar no cabeçalho uma biblioteca JavaScript -->
+      <h:body>
+      	<div id="cabecalho">
+      		<h:panelGrid columns="2">
+	      		<h:graphicImage library="img" name="logo.png"/><!-- library: pasta que contém nosso logo dentro de resources. name: nome do arquivo -->  
+				
+				<h:form rendered="#{usuarioLogado != null}">
+		            <p:themeSwitcher id="basic"  value="#{temaBean.tema}" style="position:absolute; right: 10px"><!-- Se o usuário troca o tema através do switcher, precisamos reconfigurar o atributo do TemaBean: value recebe itemvalue selecionado -->
+		                <f:selectItem itemLabel="Choose Theme" itemValue="" />
+		                <!-- <f:selectItem itemLabel="Aristo" itemValue="aristo" />
+	        			<f:selectItem itemLabel="Vader" itemValue="vader" /> -->
+	        			<f:selectItems value="#{temaBean.temas}" var="tema" itemLabel="#{tema}" itemValue="#{tema}" /><!-- os valores vem de getTemas do Bean: variável tema que representa o tema a cada iteração -->
+	        			<f:ajax /><!-- themeSwitcher por padrao nao usa ajax -->
+		            </p:themeSwitcher>
+	        	</h:form>
+        	</h:panelGrid>
+			
+			<p:growl id="messages" showDetail="true" autoUpdate="true"/>
+			
+			<h:form rendered="#{usuarioLogado != null}"><!-- mostrar as mensagens de validação de uma forma diferente, como se aparecessem notificações na tela. -->	        
+		
+		        <p:menuButton value="Menu">
+		            <p:menuitem value="Livros" action="livro?faces-redirect=true" icon="ui-icon-disk" /><!-- redirec=true faz c/ q a url seja trocada usando o nome do value  -->
+    				<p:menuitem value="Autores" action="autor?faces-redirect=true" icon="fa fa-fw fa-edit" />
+		            <p:menuitem value="Vendas" action="vendas?faces-redirect=true" icon="fa fa-fw fa-bar-chart" />
+		            <p:separator />
+		            <p:menuitem value="Logout" action="#{loginBean.deslogar}" icon="fa fa-fw fa-sign-out" />
+		        </p:menuButton>
+		    </h:form>
+			
+			<!-- <h:form rendered="#{usuarioLogado != null}">
+				<h:commandLink value="logout" action="#{loginBean.deslogar}"/>
+			</h:form> -->
+			<h1><p:outputPanel><ui:insert name="titulo"></ui:insert></p:outputPanel></h1><!-- indicará para as páginas que utilizarem o template que há uma área com name titulo que pode ser preenchida: -->
+      		<h:outputText value="#{sessionScope['usuarioLogado'].email}" />
+      	</div>
+      	
+      	<div id="conteudo">
+            <ui:insert name="conteudo">
+            </ui:insert>
+        </div>
+        
+        <div id="rodape">
+        	<HR />
+        	copyright 2012 <BR />
+            <ui:insert name="rodape"></ui:insert>
+        </div>
+      	
+      
+      </h:body>
+</html>

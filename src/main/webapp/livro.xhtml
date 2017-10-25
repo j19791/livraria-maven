@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="_template.xhtml">
+
+	<!-- jsf2.2 : utilizando get para carregar os campos do formulario da pagina usando o get (url da pagina com parametros-->
+	<f:metadata>
+	    <f:viewParam name="livroId" value="#{livroBean.livro.id}"/><!-- definido parametro passado na pagina -->
+	    <f:viewAction action="#{livroBean.carregaPeloId}" if="#{param.livroId != null}" /> <!-- ação realizada depois de carregada a pagina e passado o parametro. if serve para tratar a pagina qdo nao é passado nenhum parametro -->
+	</f:metadata>
+
+	<ui:define name="titulo">
+	            Novo Livro
+	    </ui:define>
+	
+	<ui:define name="conteudo">
+		<h:form id="livro">
+
+			<p:messages id="messages" />
+			<!-- para exibir todas as mensagens geradas automaticamente pelo JSF -->
+
+			<!-- <fieldset>
+				<legend>Dados do Livro</legend> -->
+			<p:fieldset legend="Dados do Livro">
+				<p:panelGrid columns="2">
+
+					<p:outputLabel value="Titulo:" for="titulo" />
+					<p:inputText id="titulo" value="#{livroBean.livro.titulo}"
+						required="true" requiredMessage="Título obrigatório"
+						validatorMessage="Título não pode ser superior a 40">
+						<!-- validação -->
+						<f:validateLength maximum="40" />
+						<!-- definimos o valor máximo de 40 caracteres. -->
+						<f:ajax event="blur" render="messages" />
+						<!-- validação:  qdo submetemos os dados quando o campo perde o focus -->
+					</p:inputText>
+
+					<p:outputLabel value="ISBN:" for="isbn" />
+					<p:inputMask id="isbn" value="#{livroBean.livro.isbn}"
+    					 mask="999-9-99-999999-9" validator="#{livroBean.comecaComDigitoUm}" />
+					
+
+					<p:outputLabel value="Preço:" for="preco" />
+					<p:inputNumber id="preco" value="#{livroBean.livro.preco}" symbol=" R$" symbolPosition="s" 
+                               decimalSeparator="," thousandSeparator=".">  
+                    	<p:ajax update="preco" />  
+                	</p:inputNumber>
+					<!-- <h:inputText id="preco" value="#{livroBean.livro.preco}">
+						<f:validateDoubleRange minimum="1" maximum="1000" />
+					</h:inputText> -->
+
+
+					<p:outputLabel value="Data de Lançamento:" for="dataLancamento" />
+					<p:calendar id="dataLancamento" value="#{livroBean.livro.dataLancamento.time}" 
+    					pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo" mask="true" />
+					
+					<!-- <h:inputText id="dataLancamento"
+						value="#{livroBean.livro.dataLancamento.time}">
+						time corresponde ao método getTime() de Calendar, que retorna um java.util.Date
+						<f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+						temos um formato padrão de data
+						timeZone="America/Sao_Paulo" : utilizamos agora a configuração no web.xml
+					</h:inputText> -->
+				</p:panelGrid>
+			</p:fieldset>
+
+			<p:fieldset legend="Dados do Autor">
+				<!-- <legend>Dados do Autor</legend> -->
+				<p:panelGrid columns="4">
+					<p:outputLabel value="Selecione Autor:" for="autor" />
+					<p:selectOneMenu value="#{livroBean.autorId}" id="autor">
+						<!-- ID é utilizado no atributo execute do f:ajax -->
+	
+						<f:selectItems value="#{livroBean.autores}" var="autor"
+							itemLabel="#{autor.nome}" itemValue="#{autor.id}" />
+	
+					</p:selectOneMenu>
+	
+					<p:commandButton value="Gravar Autor" action="#{livroBean.gravarAutor}" process="@this autor" update="tabelaAutores" />
+					<!-- também que queremos enviar a action do botão Gravar Autor, e por isso, precisamos adicionar o @this para o que será processado. update=render do ajax-->
+					<!-- <h:commandButton value="Gravar Autor"
+						action="#{livroBean.gravarAutor}">
+						botão sabe então que vai enviar uma requisição AJAX que NÃO submete o formulário inteiro.
+						<f:ajax execute="autor" render="tabelaAutores" />
+						execute: define os IDs dos componentes que queremos enviar na requisição.: render recebe os IDs dos componentes que queremos atualizar,
+					</h:commandButton> -->
+	
+	
+					<p:commandLink value="ou cadastrar novo autor" action="#{livroBean.formAutor}" immediate="true" update="@all"/><!-- @all: vamos falar que queremos atualizar a página inteira, já que queremos mudar de página -->
+				
+					<!-- <h:commandLink value="Cadastrar novo autor"
+						action="#{livroBean.formAutor}" immediate="true" /> -->
+					<!-- value: nome do link. Action: associar uma expressão (através de um método em LivroBean) ou colocar diretamente o nome página que queremos chamar.  -->
+					<!-- imediate=true:  não faz validação do formulário e segue para outra página -->
+				
+				</p:panelGrid>
+
+				<p:dataTable value="#{livroBean.autoresDoLivro}" var="autor"
+					id="tabelaAutores" emptyMessage="Nenhum autor">
+					<p:column>
+						<h:outputText value="#{autor.nome}" />
+					</p:column>
+					<p:column>
+      						<p:commandLink value="X" action="#{livroBean.removerAutorDoLivro(autor)}" update="tabelaAutores" process="@this"/><!-- tabela autores é renderizada a -->
+  						</p:column>
+				</p:dataTable>
+			
+
+		</p:fieldset>
+
+				
+			<p:commandButton value="Gravar" action="#{livroBean.gravar}" 
+    			process="@form" update="@form :formTabelaLivros:tabelaLivros" />
+
+			<!-- <h:commandButton value="Gravar" action="#{livroBean.gravar}">
+				<f:ajax execute="@form" render="@form :formTabelaLivros:tabelaLivros" />
+				@form: Enviaremos todas as informações do form. Para encontrar a tabela de livros fora do form é preciso usar o caminho absoluto indicado pelo ":" na frente do ID.
+			</h:commandButton> -->
+		</h:form>
+		
+		<h:form id="formTabelaLivros"><!-- obrigatório para utilizar o commandLink de remover/alterar -->
+		<p:dataTable id="tabelaLivros" value="#{livroBean.livros}" var="livro" paginator="true" rows="5"> <!-- value: livros = getLivros -->
+			<f:facet name="header">Livros</f:facet>
+			<p:column headerText="Título" sortBy="#{livro.titulo}" filterBy="#{livro.titulo}" filterMatchMode="startsWith">
+				<!-- <f:facet name="header">Título</f:facet> -->
+				<h:outputText value="#{livro.titulo}" />
+			</p:column>
+
+			<p:column headerText="ISBN" sortBy="#{livro.isbn}" filterBy="#{livro.isbn}" filterMatchMode="contains"> 
+				<!-- <f:facet name="header">ISBN</f:facet> -->
+				<h:outputText value="#{livro.isbn}" />
+			</p:column>
+
+			<p:column headerText="Preço" sortBy="#{livro.preco}" filterBy="#{livro.preco}" filterFunction="#{livroBean.precoEhMenor}">
+				<!-- <f:facet name="header">Preço</f:facet> -->
+				<h:outputText value="#{livro.preco}">
+					<f:convertNumber currencySymbol="R$" pattern="R$ #0.00"
+						type="currency" locale="pt_BR" />
+				</h:outputText>
+			</p:column>
+
+			<p:column headerText="Data" sortBy="#{livro.dataLancamento}" filterBy="#{livro.dataLancamento}" filterMatchMode="contains">
+				<!-- <f:facet name="header">Data</f:facet> -->
+				<!-- <h:outputText value="#{livro.dataLancamento}" /> -->
+				<h:outputText value="#{livro.dataLancamento.time}">
+					<f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+					<!-- timeZone="America/Sao_Paulo" -->
+				</h:outputText>
+			</p:column>
+			
+			<p:column headerText="Alterar">
+            	<!-- <f:facet name="header">Alterar</f:facet> -->
+            	<p:commandLink value="altera" action="#{livroBean.carregar(livro)}" process="@this" update=":livro"/>
+        	</p:column>
+			
+			<p:column headerText="Remover">
+	        	<!-- <f:facet name="header">Remover</f:facet> -->
+	        	<p:commandLink value="Remover" action="#{livroBean.remover(livro)}" process="@this" update="formTabelaLivros:tabelaLivros" /><!-- commandLink deverá ser envolvido com um form. O parametro livro vem do var de datatable -->
+	    	</p:column>
+
+
+		</p:dataTable>
+		</h:form>
+
+
+	</ui:define>
+	
+	<ui:define name="rodape">
+		livro.xhtml
+	</ui:define>
+
+</ui:composition>
+</html>

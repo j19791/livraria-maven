@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="_template.xhtml">
+
+	<!-- jsf2.2 -->
+	<f:metadata>
+	    <f:viewParam name="autorId" value="#{autorBean.autor.id}"/><!-- definido parametro passado na pagina -->
+	    <f:viewAction action="#{autorBean.carregaPelaId}" if="#{param.autorId != null}" /> <!-- ação realizada depois de carregada a pagina e passado o parametro. if serve para tratar a pagina qdo nao é passado nenhum parametro -->
+	</f:metadata>
+
+	<ui:define name="titulo">
+		Novo autor
+	</ui:define>
+
+	<ui:define name="conteudo">
+
+		<h:form id="autor">
+			<p:fieldset legend="Dados do Autor">
+				<!-- <legend></legend> -->
+				<h:panelGrid columns="3">
+					<p:outputLabel value="Nome:" for="nome" />
+					<p:inputText id="nome" value="#{autorBean.autor.nome}" >
+						<f:validateLength minimum="5" />
+                    	<f:ajax event="blur" render="messageNome" />
+                    </p:inputText>
+                    <p:message for="nome" id="messageNome" />
+					
+					<p:outputLabel value="Email:" for="email" />
+					<p:inputText id="email" value="#{autorBean.autor.email}" required="true" validatorMessage="Email inválido"><!-- validatorMessage: mensagem de validação utilizando validateRegex-->
+						<!-- <f:passThroughAttribute name="type" value="email" /> --><!-- jsf renderiza componente html5 (com validações) : input do tipo email -->	
+						<f:attribute name="type" value="email" /><!-- utilizando mesma funcionalidade acima mas com primefaces -->
+						<f:validateRegex pattern=".+@.+" /><!--  primefaces usa ajax, para validação, os dados digitados terão que coincidir com o padrão que nós definirmos. -->
+						<f:passThroughAttribute name="placeholder" value="Email do autor" />
+					</p:inputText>
+					<p:message for="email" id="messageEmail" />
+					
+					<p:commandButton value="Gravar" action="#{autorBean.gravar}" process="@form" update="@form :formTabelaAutores" /><!-- renderiza form e tabela de autores -->
+				</h:panelGrid>
+			</p:fieldset>
+		</h:form>
+		
+		<h:form id="formTabelaAutores"><!-- obrigatório para utilizar o commandLink de remover/alterar -->
+		
+		<p:dataList value="#{autorBean.autores}" var="autor" type="definition">
+	        <f:facet name="header">
+	            Autores
+	        </f:facet>
+	        
+	        <!-- utilizamos os icones do jQuery! -->
+ 	        <p:commandLink styleClass="ui-icon ui-icon-pencil" style="float:left;margin-right:10px"  update=":autor"><!-- process="@this" - default: submeter os dados do próprio link. atualizar o formulário de cadastro de autores -->
+	            <f:setPropertyActionListener value="#{autor}" target="#{autorBean.autor}" /><!-- utilizacao do set ao inves do carregar -->
+	        </p:commandLink>
+
+
+        	<p:commandLink styleClass="ui-icon ui-icon-trash" style="float:left;margin-right:10px" action="#{autorBean.remover(autor)}" update="@form"/><!-- remover: atualizar formulario -->
+	
+	        #{autor.nome} - #{autor.email}
+	    </p:dataList>
+		
+		<h:dataTable id="tabelaAutores" value="#{autorBean.autores}" var="autor">
+
+			<h:column>
+				<f:facet name="header">Autor</f:facet>
+				<h:outputText value="#{autor.nome}" />
+			</h:column>			
+			
+			<h:column>
+            	<f:facet name="header">Alterar</f:facet>
+            	<h:commandLink value="altera" action="#{autorBean.carregar(autor)}" />
+        	</h:column>
+			
+			<h:column>
+	        	<f:facet name="header">Remover</f:facet>
+	        	<h:commandLink value="Remover" action="#{autorBean.remover(autor)}"/><!-- commandLink deverá ser envolvido com um form. O parametro livro vem do var de datatable -->
+	    	</h:column>
+
+
+		</h:dataTable>
+		</h:form>
+		
+		
+		
+	</ui:define>
+	
+	<ui:define name="rodape">
+		autor.xhtml
+	</ui:define>
+
+</ui:composition>
+</html>

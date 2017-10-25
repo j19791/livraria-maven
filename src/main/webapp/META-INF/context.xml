@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <Resource name="BeanManager"
+        auth="Container"
+        type="javax.enterprise.inject.spi.BeanManager"
+        factory="org.jboss.weld.resources.ManagerObjectFactory"/>
+</Context>
+
+<!-- O CDI chama o gerenciador:BeanManager, e nesse arquivo declaramos qual BeanManager queremos utilizar. Quando o Tomcat sobe, ele carrega automaticamente esse arquivo e inicializa o CDI (o BeanManager) -->

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:jsf="http://xmlns.jcp.org/jsf"
+    xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition template="_template.xhtml">
+
+        <ui:define name="titulo">
+                Login
+        </ui:define>
+
+        <ui:define name="conteudo">
+        	<p:messages globalOnly="true" /><!--  mensagem que exibe os problemas de login. queremos que as mensagens específicas apareçam ao lado dos seus componentes específicos (preenchimento requerido), e as mensagens globais acima do formulário -->
+        	
+            <h:form id="login">
+                <p:fieldset legend="Login">
+                    <!-- <legend>Login</legend> --> <!-- utilizando pf -->
+                    <h:panelGrid columns="3">
+
+                        <p:outputLabel value="Email:" for="email" />
+                        
+                        <!-- utilizando  pass Through elements: componentes html5 com atributos jsf-->
+                        <p:inputText id="email" value="#{loginBean.usuario.email}" required="true">
+		                    <f:passThroughAttribute name="type" value="email" />
+		                </p:inputText>
+                        <!-- <input type="email" jsf:id="email" jsf:value="#{loginBean.usuario.email}" /> -->
+                        
+                        <!-- <h:inputText id="email" value="#{loginBean.usuario.email}"
+                            required="true">
+                            <f:passThroughAttribute name="type" value="email" />
+                        </h:inputText> -->
+
+                        <p:message for="email" id="messageEmail" />
+
+                        <p:outputLabel value="Senha:" for="senha" />
+                        <p:password id="senha" value="#{loginBean.usuario.senha}" feedback="true" required="true" promptLabel="Digite a sua senha" weakLabel="Fraca"
+                    goodLabel="Bom" strongLabel="Forte"/><!-- feedback: força da senha -->
+                        <!-- <p:inputText id="senha" value="#{loginBean.usuario.senha}" required="true" >
+		                    <f:passThroughAttribute name="type" value="password" />
+		                </p:inputText> -->
+                        <!-- <h:inputSecret id="senha" value="#{loginBean.usuario.senha}" required="true" /> -->
+                        <!-- <h:inputText id="senha" value="#{loginBean.usuario.senha}"
+                            required="true">
+                            <f:passThroughAttribute name="type" value="password" />
+                        </h:inputText> -->
+
+                        <p:message for="senha" id="messageSenha" />
+
+                        <p:commandButton value="Efetuar Login" 
+                            action="#{loginBean.efetuaLogin}"
+                            update="@form" process="@form" /><!-- process: quais componentes queremos submeter - todo o formulário - @form; update:  o que queremos atualizar, e no nosso caso também é o formulário: @form -->
+                    </h:panelGrid>
+                </p:fieldset>
+            </h:form>
+        </ui:define>
+    </ui:composition>
+</html>
